@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox alignment="CENTER" spacing="20" styleClass="login-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatapp.controller.RegisterController">
+    <Label text="Register" styleClass="title"/>
+    <TextField fx:id="usernameField" promptText="Username" styleClass="text-field"/>
+    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-field"/>
+    <Button fx:id="uploadButton" text="Upload Profile Picture" onAction="#handleUpload" styleClass="button"/>
+    <Button fx:id="registerButton" text="Register" onAction="#handleRegister" styleClass="button"/>
+    <Hyperlink fx:id="loginLink" text="Already have an account? Login" onAction="#handleLoginLink"/>
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+</VBox>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" spacing="20" styleClass="login-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatapp.controller.GroupController">
+    <Label text="Create Group" styleClass="title"/>
+    <TextField fx:id="groupNameField" promptText="Group Name" styleClass="text-field"/>
+    <TextField fx:id="usernameField" promptText="Add User (Username)" styleClass="text-field"/>
+    <Button fx:id="addMemberButton" text="Add Member" onAction="#handleAddMember" styleClass="button"/>
+    <ListView fx:id="memberList" styleClass="member-list"/>
+    <Button fx:id="createButton" text="Create Group" onAction="#handleCreate" styleClass="button"/>
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+</VBox>

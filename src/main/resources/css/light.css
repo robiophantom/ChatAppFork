@@ -1,0 +1,105 @@
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-background-color: #f0f2f5;
+}
+
+.login-container {
+    -fx-background-color: #ffffff;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-alignment: center;
+}
+
+.main-container {
+    -fx-background-color: #f0f2f5;
+}
+
+.sidebar {
+    -fx-background-color: #ffffff;
+    -fx-padding: 10;
+    -fx-border-color: #e0e0e0;
+    -fx-border-width: 0 1 0 0;
+}
+
+.chat-area {
+    -fx-padding: 10;
+}
+
+.header {
+    -fx-background-color: #6b21a8;
+    -fx-padding: 10;
+}
+
+.title {
+    -fx-font-size: 24px;
+    -fx-text-fill: #6b21a8;
+    -fx-font-weight: bold;
+}
+
+.text-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.button {
+    -fx-background-color: #6b21a8;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 8 16;
+    -fx-border-radius: 5;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #7c3aed;
+}
+
+.error-label {
+    -fx-text-fill: #dc2626;
+}
+
+.chat-list {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+}
+
+.chat-title {
+    -fx-font-size: 18px;
+    -fx-text-fill: #6b21a8;
+    -fx-font-weight: bold;
+}
+
+.message-field {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 5;
+    -fx-padding: 10;
+}
+
+.message-container {
+    -fx-spacing: 10;
+    -fx-padding: 10;
+}
+
+.message-bubble {
+    -fx-background-color: #e9d5ff;
+    -fx-padding: 10;
+    -fx-border-radius: 10;
+    -fx-max-width: 400;
+}
+
+.message-bubble-sent {
+    -fx-background-color: #6b21a8;
+    -fx-text-fill: #ffffff;
+}
+
+.username-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 16px;
+}
+
+.member-list {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e0e0e0;
+}

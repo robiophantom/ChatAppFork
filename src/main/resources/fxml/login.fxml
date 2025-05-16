@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="$CONTROLLER_NAME$"
-            prefHeight="400.0" prefWidth="600.0" >
-
-</AnchorPane>
+<VBox alignment="CENTER" spacing="20" styleClass="login-container" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatapp.controller.LoginController">
+    <Label text="ChatApp" styleClass="title"/>
+    <TextField fx:id="usernameField" promptText="Username" styleClass="text-field"/>
+    <PasswordField fx:id="passwordField" promptText="Password" styleClass="text-field"/>
+    <Button fx:id="loginButton" text="Login" onAction="#handleLogin" styleClass="button"/>
+    <Hyperlink fx:id="registerLink" text="Don't have an account? Register" onAction="#handleRegisterLink"/>
+    <Label fx:id="errorLabel" styleClass="error-label"/>
+</VBox>
