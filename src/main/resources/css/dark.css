@@ -45,7 +45,7 @@
 }
 
 .button {
-    -fx-background-color: #ae71e0;
+    -fx-background-color: #6b21a8;
     -fx-text-fill: #ffffff;
     -fx-padding: 8 16;
     -fx-border-radius: 5;
@@ -53,7 +53,7 @@
 }
 
 .button:hover {
-    -fx-background-color: #9f71ed;
+    -fx-background-color: #7c3aed;
 }
 
 .error-label {
@@ -93,7 +93,7 @@
 }
 
 .message-bubble-sent {
-    -fx-background-color: #c998f1;
+    -fx-background-color: #6b21a8;
     -fx-text-fill: #ffffff;
 }
 
