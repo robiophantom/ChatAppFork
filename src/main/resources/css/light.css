@@ -94,6 +94,21 @@
     -fx-text-fill: #ffffff;
 }
 
+.message-deleted {
+    -fx-font-style: italic;
+    -fx-text-fill: #666666;
+}
+
+.message-meta {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666666;
+}
+
+.message-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666666;
+}
+
 .username-label {
     -fx-text-fill: #ffffff;
     -fx-font-size: 16px;

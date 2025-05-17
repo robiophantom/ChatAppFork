@@ -88,8 +88,8 @@ public class DatabaseUtil {
     public static List<Message> getMessages(int userId, Integer recipientId, Integer groupId) throws SQLException {
         List<Message> messages = new ArrayList<>();
         String sql = groupId != null ?
-                "SELECT * FROM messages WHERE group_id = ? ORDER BY sent_at" :
-                "SELECT * FROM messages WHERE (sender_id = ? AND recipient_id = ?) OR (sender_id = ? AND recipient_id = ?) ORDER BY sent_at";
+                "SELECT m.* FROM messages m WHERE m.group_id = ? ORDER BY m.sent_at" :
+                "SELECT m.* FROM messages m WHERE (m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?) ORDER BY m.sent_at";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             if (groupId != null) {
                 stmt.setInt(1, groupId);
@@ -101,20 +101,75 @@ public class DatabaseUtil {
             }
             ResultSet rs = stmt.executeQuery();
             while (rs.next()) {
-                messages.add(new Message(
+                Message msg = new Message(
                         rs.getInt("id"),
                         rs.getInt("sender_id"),
                         rs.getInt("recipient_id"),
                         rs.getInt("group_id"),
-                        rs.getString("content"),
+                        rs.getBoolean("is_deleted") ? "This message was deleted" : rs.getString("content"),
                         rs.getString("file_name"),
                         rs.getBytes("file_data"),
                         rs.getLong("file_size"),
-                        rs.getString("sent_at")
-                ));
+                        rs.getString("sent_at"),
+                        rs.getBoolean("is_deleted"),
+                        rs.getString("delivered_at"),
+                        rs.getString("read_at")
+                );
+                messages.add(msg);
             }
         }
+
+        // Update delivery and read status only for non-deleted messages
+        if (groupId != null) {
+            updateGroupMessageStatus(messages, userId, groupId);
+        } else if (recipientId != null && userId != recipientId) {
+            updateDirectMessageStatus(messages, userId, recipientId);
+        }
+
         return messages;
+    }
+
+    private static void updateDirectMessageStatus(List<Message> messages, int userId, int recipientId) throws SQLException {
+        try (Connection conn = getConnection()) {
+            String updateSql = "UPDATE messages SET delivered_at = NOW() WHERE id = ? AND recipient_id = ? AND delivered_at IS NULL AND is_deleted = FALSE";
+            String readSql = "UPDATE messages SET read_at = NOW() WHERE id = ? AND recipient_id = ? AND read_at IS NULL AND is_deleted = FALSE";
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql);
+                 PreparedStatement readStmt = conn.prepareStatement(readSql)) {
+                for (Message msg : messages) {
+                    if (!msg.isDeleted() && msg.getRecipientId() == userId && msg.getSenderId() != userId) {
+                        updateStmt.setInt(1, msg.getId());
+                        updateStmt.setInt(2, userId);
+                        updateStmt.executeUpdate();
+
+                        readStmt.setInt(1, msg.getId());
+                        readStmt.setInt(2, userId);
+                        readStmt.executeUpdate();
+                    }
+                }
+            }
+        }
+    }
+
+    private static void updateGroupMessageStatus(List<Message> messages, int userId, int groupId) throws SQLException {
+        try (Connection conn = getConnection()) {
+            String insertSql = "INSERT INTO message_status (message_id, user_id, delivered_at) VALUES (?, ?, NOW()) " +
+                    "ON DUPLICATE KEY UPDATE delivered_at = NOW()";
+            String readSql = "UPDATE message_status SET read_at = NOW() WHERE message_id = ? AND user_id = ? AND read_at IS NULL";
+            try (PreparedStatement insertStmt = conn.prepareStatement(insertSql);
+                 PreparedStatement readStmt = conn.prepareStatement(readSql)) {
+                for (Message msg : messages) {
+                    if (!msg.isDeleted() && msg.getSenderId() != userId) {
+                        insertStmt.setInt(1, msg.getId());
+                        insertStmt.setInt(2, userId);
+                        insertStmt.executeUpdate();
+
+                        readStmt.setInt(1, msg.getId());
+                        readStmt.setInt(2, userId);
+                        readStmt.executeUpdate();
+                    }
+                }
+            }
+        }
     }
 
     public static boolean sendMessage(int senderId, Integer recipientId, Integer groupId, String content,
@@ -133,7 +188,7 @@ public class DatabaseUtil {
     }
 
     public static boolean addContact(int userId, int contactId) throws SQLException {
-        if (userId == contactId) return false; // Prevent adding self
+        if (userId == contactId) return false;
         String sql = "INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, userId);
@@ -153,5 +208,36 @@ public class DatabaseUtil {
             }
         }
         return contacts;
+    }
+
+    public static boolean deleteMessage(int messageId, int senderId) throws SQLException {
+        String sql = "UPDATE messages SET is_deleted = TRUE, content = NULL, file_name = NULL, file_data = NULL, file_size = 0 WHERE id = ? AND sender_id = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, messageId);
+            stmt.setInt(2, senderId);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public static String getGroupMessageStatus(int messageId, int senderId, int groupId) throws SQLException {
+        String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN delivered_at IS NOT NULL THEN 1 ELSE 0 END) as delivered, " +
+                "SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as read " +
+                "FROM message_status ms JOIN group_members gm ON ms.user_id = gm.user_id " +
+                "WHERE ms.message_id = ? AND gm.group_id = ? AND ms.user_id != ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, messageId);
+            stmt.setInt(2, groupId);
+            stmt.setInt(3, senderId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("total");
+                int delivered = rs.getInt("delivered");
+                int read = rs.getInt("read");
+                if (total > 0 && read == total) return "✓✓ (blue)"; // All read
+                if (total > 0 && delivered == total) return "✓✓"; // All delivered
+                return "✓"; // Sent
+            }
+            return "✓"; // Default to sent if no status
+        }
     }
 }

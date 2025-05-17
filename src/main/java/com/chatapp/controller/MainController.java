@@ -50,12 +50,10 @@ public class MainController {
     private void loadChats() {
         try {
             chatList.getItems().clear();
-            // Load contacts
             List<User> contacts = DatabaseUtil.getContacts(currentUser.getId());
             for (User contact : contacts) {
                 chatList.getItems().add("Contact: " + contact.getUsername());
             }
-            // Load groups
             List<Group> groups = DatabaseUtil.getUserGroups(currentUser.getId());
             for (Group group : groups) {
                 chatList.getItems().add("Group: " + group.getName());
@@ -109,7 +107,6 @@ public class MainController {
                             .orElse(null);
                     chatTitle.setText(newVal);
                     loadMessages();
-                    // Show "Add Contact" button
                     addContactButton.setVisible(true);
                 } else {
                     addContactButton.setVisible(false);
@@ -148,25 +145,78 @@ public class MainController {
             for (Message msg : messages) {
                 HBox messageBox = new HBox();
                 messageBox.getStyleClass().add("message-bubble");
+                VBox messageContent = new VBox();
                 if (msg.getSenderId() == currentUser.getId()) {
                     messageBox.getStyleClass().add("message-bubble-sent");
                     messageBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
                 }
                 Label content = new Label();
-                if (msg.getContent() != null) {
+                if (msg.isDeleted()) {
+                    content.setText("This message was deleted");
+                    content.setStyle("-fx-font-style: italic;");
+                } else if (msg.getContent() != null) {
                     content.setText(msg.getContent());
                 } else if (msg.getFileName() != null) {
                     content.setText("File: " + msg.getFileName());
                     content.setOnMouseClicked(e -> {
-                        try {
-                            FileUtil.saveFile(msg.getFileData(), msg.getFileName());
-                        } catch (IOException ex) {
-                            showAlert("Error saving file: " + ex.getMessage());
+                        if (!msg.isDeleted()) {
+                            try {
+                                FileUtil.saveFile(msg.getFileData(), msg.getFileName());
+                            } catch (IOException ex) {
+                                showAlert("Error saving file: " + ex.getMessage());
+                            }
                         }
                     });
                 }
                 content.setWrapText(true);
-                messageBox.getChildren().add(content);
+                messageContent.getChildren().add(content);
+
+                // Add timestamp and status
+                HBox metaBox = new HBox(5);
+                Label timestamp = new Label(formatTimestamp(msg.getSentAt()));
+                timestamp.getStyleClass().add("message-meta");
+                Label status = new Label();
+                if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
+                    String statusText = selectedGroup != null ?
+                            DatabaseUtil.getGroupMessageStatus(msg.getId(), currentUser.getId(), selectedGroup.getId()) :
+                            msg.getStatus();
+                    status.setText(statusText);
+                    status.getStyleClass().add("message-status");
+                    if (statusText.equals("✓✓ (blue)")) {
+                        status.setStyle("-fx-text-fill: #4fc3f7;");
+                    }
+                }
+                metaBox.getChildren().addAll(timestamp, status);
+                messageContent.getChildren().add(metaBox);
+
+                messageBox.getChildren().add(messageContent);
+
+                // Add context menu for sender's messages
+                if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
+                    ContextMenu contextMenu = new ContextMenu();
+                    MenuItem deleteItem = new MenuItem("Delete Message");
+                    deleteItem.setOnAction(e -> {
+                        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION, "Delete this message?", ButtonType.YES, ButtonType.NO);
+                        confirm.showAndWait().ifPresent(response -> {
+                            if (response == ButtonType.YES) {
+                                try {
+                                    if (DatabaseUtil.deleteMessage(msg.getId(), currentUser.getId())) {
+                                        loadMessages();
+                                    } else {
+                                        showAlert("Failed to delete message");
+                                    }
+                                } catch (SQLException ex) {
+                                    showAlert("Error deleting message: " + ex.getMessage());
+                                }
+                            }
+                        });
+                    });
+                    contextMenu.getItems().add(deleteItem);
+                    messageBox.setOnContextMenuRequested(e -> {
+                        contextMenu.show(messageBox, e.getScreenX(), e.getScreenY());
+                    });
+                }
+
                 messageContainer.getChildren().add(messageBox);
             }
             messageScrollPane.applyCss();
@@ -275,5 +325,18 @@ public class MainController {
 
     public void refreshChats() {
         loadChats();
+    }
+
+    private String formatTimestamp(String sentAt) {
+        try {
+            String[] parts = sentAt.split(" ")[1].split(":");
+            int hour = Integer.parseInt(parts[0]);
+            String minute = parts[1];
+            String period = hour >= 12 ? "PM" : "AM";
+            hour = hour % 12 == 0 ? 12 : hour % 12;
+            return String.format("%d:%s %s", hour, minute, period);
+        } catch (Exception e) {
+            return sentAt;
+        }
     }
 }
