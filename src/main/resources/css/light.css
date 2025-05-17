@@ -26,13 +26,13 @@
 }
 
 .header {
-    -fx-background-color: #6b21a8;
+    -fx-background-color: #ae63ec;
     -fx-padding: 10;
 }
 
 .title {
     -fx-font-size: 24px;
-    -fx-text-fill: #6b21a8;
+    -fx-text-fill: #9d56d8;
     -fx-font-weight: bold;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .button {
-    -fx-background-color: #6b21a8;
+    -fx-background-color: #a95de8;
     -fx-text-fill: #ffffff;
     -fx-padding: 8 16;
     -fx-border-radius: 5;
@@ -52,7 +52,7 @@
 }
 
 .button:hover {
-    -fx-background-color: #7c3aed;
+    -fx-background-color: #946bdc;
 }
 
 .error-label {
@@ -66,7 +66,7 @@
 
 .chat-title {
     -fx-font-size: 18px;
-    -fx-text-fill: #6b21a8;
+    -fx-text-fill: #b876ef;
     -fx-font-weight: bold;
 }
 
@@ -90,7 +90,7 @@
 }
 
 .message-bubble-sent {
-    -fx-background-color: #6b21a8;
+    -fx-background-color: #9f4ae4;
     -fx-text-fill: #ffffff;
 }
 

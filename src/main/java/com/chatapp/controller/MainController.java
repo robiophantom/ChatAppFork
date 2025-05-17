@@ -145,6 +145,7 @@ public class MainController {
             for (Message msg : messages) {
                 HBox messageBox = new HBox();
                 messageBox.getStyleClass().add("message-bubble");
+                VBox messageContent = new VBox();
                 if (msg.getSenderId() == currentUser.getId()) {
                     messageBox.getStyleClass().add("message-bubble-sent");
                     messageBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
@@ -152,7 +153,7 @@ public class MainController {
                 Label content = new Label();
                 if (msg.isDeleted()) {
                     content.setText("This message was deleted");
-                    content.setStyle("-fx-font-style: italic;"); // Italicize deleted messages
+                    content.setStyle("-fx-font-style: italic;");
                 } else if (msg.getContent() != null) {
                     content.setText(msg.getContent());
                 } else if (msg.getFileName() != null) {
@@ -166,7 +167,27 @@ public class MainController {
                     });
                 }
                 content.setWrapText(true);
-                messageBox.getChildren().add(content);
+                messageContent.getChildren().add(content);
+
+                // Add timestamp and status
+                HBox metaBox = new HBox(5);
+                Label timestamp = new Label(formatTimestamp(msg.getSentAt()));
+                timestamp.getStyleClass().add("message-meta");
+                Label status = new Label();
+                if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
+                    String statusText = selectedGroup != null ?
+                            DatabaseUtil.getGroupMessageStatus(msg.getId(), currentUser.getId(), selectedGroup.getId()) :
+                            msg.getStatus();
+                    status.setText(statusText);
+                    status.getStyleClass().add("message-status");
+                    if (statusText.equals("✓✓ (blue)")) {
+                        status.setStyle("-fx-text-fill: #4fc3f7;"); // Blue for read
+                    }
+                }
+                metaBox.getChildren().addAll(timestamp, status);
+                messageContent.getChildren().add(metaBox);
+
+                messageBox.getChildren().add(messageContent);
 
                 // Add context menu for sender's messages
                 if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
@@ -302,5 +323,19 @@ public class MainController {
 
     public void refreshChats() {
         loadChats();
+    }
+
+    private String formatTimestamp(String sentAt) {
+        // Assuming sentAt is in format "yyyy-MM-dd HH:mm:ss"
+        try {
+            String[] parts = sentAt.split(" ")[1].split(":");
+            int hour = Integer.parseInt(parts[0]);
+            String minute = parts[1];
+            String period = hour >= 12 ? "PM" : "AM";
+            hour = hour % 12 == 0 ? 12 : hour % 12;
+            return String.format("%d:%s %s", hour, minute, period);
+        } catch (Exception e) {
+            return sentAt; // Fallback
+        }
     }
 }

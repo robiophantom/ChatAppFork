@@ -10,8 +10,8 @@ import java.io.*;
 
 public class FileUtil {
     public static byte[] fileToBytes(File file) throws IOException {
-        if (file.length() > 15 * 1024 * 1024) { // 15 MB limit
-            throw new IOException("File size exceeds 15 MB");
+        if (file.length() > 20 * 1024 * 1024) { // 20 MB limit
+            throw new IOException("File size exceeds 20 MB");
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (FileInputStream fis = new FileInputStream(file)) {

@@ -119,7 +119,7 @@ public class DatabaseUtil {
             }
         }
 
-        // Update delivery and read status only for non-deleted messages
+        // Update delivery and read status
         if (groupId != null) {
             updateGroupMessageStatus(messages, userId, groupId);
         } else if (recipientId != null && userId != recipientId) {
@@ -131,12 +131,12 @@ public class DatabaseUtil {
 
     private static void updateDirectMessageStatus(List<Message> messages, int userId, int recipientId) throws SQLException {
         try (Connection conn = getConnection()) {
-            String updateSql = "UPDATE messages SET delivered_at = NOW() WHERE id = ? AND recipient_id = ? AND delivered_at IS NULL AND is_deleted = FALSE";
-            String readSql = "UPDATE messages SET read_at = NOW() WHERE id = ? AND recipient_id = ? AND read_at IS NULL AND is_deleted = FALSE";
+            String updateSql = "UPDATE messages SET delivered_at = NOW() WHERE id = ? AND recipient_id = ? AND delivered_at IS NULL";
+            String readSql = "UPDATE messages SET read_at = NOW() WHERE id = ? AND recipient_id = ? AND read_at IS NULL";
             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql);
                  PreparedStatement readStmt = conn.prepareStatement(readSql)) {
                 for (Message msg : messages) {
-                    if (!msg.isDeleted() && msg.getRecipientId() == userId && msg.getSenderId() != userId) {
+                    if (msg.getRecipientId() == userId && msg.getSenderId() != userId) {
                         updateStmt.setInt(1, msg.getId());
                         updateStmt.setInt(2, userId);
                         updateStmt.executeUpdate();
@@ -158,7 +158,7 @@ public class DatabaseUtil {
             try (PreparedStatement insertStmt = conn.prepareStatement(insertSql);
                  PreparedStatement readStmt = conn.prepareStatement(readSql)) {
                 for (Message msg : messages) {
-                    if (!msg.isDeleted() && msg.getSenderId() != userId) {
+                    if (msg.getSenderId() != userId) {
                         insertStmt.setInt(1, msg.getId());
                         insertStmt.setInt(2, userId);
                         insertStmt.executeUpdate();
@@ -219,6 +219,7 @@ public class DatabaseUtil {
         }
     }
 
+    // Get group message status for tick display
     public static String getGroupMessageStatus(int messageId, int senderId, int groupId) throws SQLException {
         String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN delivered_at IS NOT NULL THEN 1 ELSE 0 END) as delivered, " +
                 "SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as read " +
