@@ -10,9 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseUtil {
-    private static final String URL = "jdbc:mysql://localhost:3306/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-    private static final String USER = "root";
-    private static final String PASSWORD = "rawal117";
+    private static final String URL = "jdbc:mysql://2409:4085:aecd:79aa:a876:130b:4500:584c/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static final String USER = "remote_user";
+    private static final String PASSWORD = "StrongPassword123";
+
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
