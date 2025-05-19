@@ -13,6 +13,8 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -38,6 +40,7 @@ public class MainController {
     private User selectedUser;
     private Group selectedGroup;
     private boolean isDarkMode = false;
+    private boolean shouldScrollToBottom = true; // Flag to control scrolling behavior
 
     public void setUser(User user) {
         this.currentUser = user;
@@ -78,6 +81,7 @@ public class MainController {
                                 .orElse(null);
                     }
                     chatTitle.setText(newVal);
+                    shouldScrollToBottom = true; // Scroll to bottom when a new chat is selected
                     loadMessages();
                 }
             });
@@ -106,6 +110,7 @@ public class MainController {
                             .findFirst()
                             .orElse(null);
                     chatTitle.setText(newVal);
+                    shouldScrollToBottom = true; // Scroll to bottom when a new chat is selected
                     loadMessages();
                     addContactButton.setVisible(true);
                 } else {
@@ -136,6 +141,10 @@ public class MainController {
 
     private void loadMessages() {
         try {
+            // Capture the current scroll position before reloading messages
+            double currentScrollPos = messageScrollPane.getVvalue();
+            boolean wasAtBottom = currentScrollPos >= 0.99; // Consider "at bottom" if very close to 1.0
+
             messageContainer.getChildren().clear();
             List<Message> messages = DatabaseUtil.getMessages(
                     currentUser.getId(),
@@ -143,17 +152,25 @@ public class MainController {
                     selectedGroup != null ? selectedGroup.getId() : null
             );
             for (Message msg : messages) {
-                HBox messageBox = new HBox();
-                messageBox.getStyleClass().add("message-bubble");
-                VBox messageContent = new VBox();
+                // Outer HBox to align the entire message bubble (left for sender, right for user)
+                HBox messageWrapper = new HBox();
+                messageWrapper.setAlignment(msg.getSenderId() == currentUser.getId() ?
+                        javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
+                HBox.setHgrow(messageWrapper, Priority.ALWAYS);
+
+                // VBox for the bubble itself, containing both message content and metadata
+                VBox messageBubble = new VBox();
+                messageBubble.getStyleClass().add("message-bubble");
                 if (msg.getSenderId() == currentUser.getId()) {
-                    messageBox.getStyleClass().add("message-bubble-sent");
-                    messageBox.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+                    messageBubble.getStyleClass().add("message-bubble-sent");
                 }
+                VBox.setVgrow(messageBubble, Priority.ALWAYS);
+
+                // Message content
                 Label content = new Label();
                 if (msg.isDeleted()) {
                     content.setText("This message was deleted");
-                    content.setStyle("-fx-font-style: italic;");
+                    content.getStyleClass().add("message-deleted");
                 } else if (msg.getContent() != null) {
                     content.setText(msg.getContent());
                 } else if (msg.getFileName() != null) {
@@ -167,10 +184,14 @@ public class MainController {
                     });
                 }
                 content.setWrapText(true);
-                messageContent.getChildren().add(content);
+                content.setPrefWidth(Region.USE_COMPUTED_SIZE);
+                content.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(content, Priority.ALWAYS);
 
-                // Add timestamp and status
+                // HBox for metadata (timestamp and status)
                 HBox metaBox = new HBox(5);
+                metaBox.setAlignment(javafx.geometry.Pos.BOTTOM_RIGHT);
+                HBox.setHgrow(metaBox, Priority.ALWAYS);
                 Label timestamp = new Label(formatTimestamp(msg.getSentAt()));
                 timestamp.getStyleClass().add("message-meta");
                 Label status = new Label();
@@ -185,9 +206,10 @@ public class MainController {
                     }
                 }
                 metaBox.getChildren().addAll(timestamp, status);
-                messageContent.getChildren().add(metaBox);
 
-                messageBox.getChildren().add(messageContent);
+                // Add content and metadata to the bubble
+                messageBubble.getChildren().addAll(content, metaBox);
+                messageWrapper.getChildren().add(messageBubble);
 
                 // Add context menu for sender's messages
                 if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
@@ -210,16 +232,25 @@ public class MainController {
                         });
                     });
                     contextMenu.getItems().add(deleteItem);
-                    messageBox.setOnContextMenuRequested(e -> {
-                        contextMenu.show(messageBox, e.getScreenX(), e.getScreenY());
+                    messageBubble.setOnContextMenuRequested(e -> {
+                        contextMenu.show(messageBubble, e.getScreenX(), e.getScreenY());
                     });
                 }
 
-                messageContainer.getChildren().add(messageBox);
+                messageContainer.getChildren().add(messageWrapper);
             }
+
+            // Apply CSS and layout
             messageScrollPane.applyCss();
             messageScrollPane.layout();
-            messageScrollPane.setVvalue(1.0);
+
+            // Scroll logic
+            if (shouldScrollToBottom || wasAtBottom) {
+                messageScrollPane.setVvalue(1.0); // Scroll to bottom
+                shouldScrollToBottom = false; // Reset flag after scrolling
+            } else {
+                messageScrollPane.setVvalue(currentScrollPos); // Preserve scroll position
+            }
         } catch (SQLException e) {
             showAlert("Error loading messages: " + e.getMessage());
         }
@@ -240,6 +271,7 @@ public class MainController {
                         0
                 );
                 messageField.clear();
+                shouldScrollToBottom = true; // Scroll to bottom after sending a message
                 loadMessages();
             }
         } catch (SQLException e) {
@@ -262,6 +294,7 @@ public class MainController {
                         fileData,
                         file.length()
                 );
+                shouldScrollToBottom = true; // Scroll to bottom after attaching a file
                 loadMessages();
             } catch (IOException | SQLException e) {
                 showAlert("Error attaching file: " + e.getMessage());

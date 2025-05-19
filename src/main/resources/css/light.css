@@ -1,120 +1,188 @@
 .root {
-    -fx-font-family: "Segoe UI";
-    -fx-background-color: #f0f2f5;
+    -fx-font-family: "Roboto", "Segoe UI", sans-serif;
+    -fx-background-color: #f0f0f5; /* Light purple-gray background */
+    -fx-background-image: url("/images/chat_background.png"); /* WhatsApp-like subtle background */
+    -fx-background-size: cover;
 }
 
 .login-container {
     -fx-background-color: #ffffff;
-    -fx-padding: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);
+    -fx-padding: 25;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 12, 0, 0, 2);
     -fx-alignment: center;
+    -fx-max-width: 350;
 }
 
 .main-container {
-    -fx-background-color: #f0f2f5;
+    -fx-background-color: transparent; /* Let root background show */
 }
 
 .sidebar {
     -fx-background-color: #ffffff;
-    -fx-padding: 10;
-    -fx-border-color: #e0e0e0;
+    -fx-padding: 15;
+    -fx-border-color: #e5e7eb;
     -fx-border-width: 0 1 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 0);
 }
 
 .chat-area {
-    -fx-padding: 10;
+    -fx-padding: 15;
+    -fx-background-color: transparent;
 }
 
 .header {
-    -fx-background-color: #ae63ec;
-    -fx-padding: 10;
+    -fx-background-color: #a656e8; /* Purple header */
+    -fx-padding: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 1);
 }
 
 .title {
-    -fx-font-size: 24px;
-    -fx-text-fill: #9d56d8;
-    -fx-font-weight: bold;
+    -fx-font-size: 26px;
+    -fx-text-fill: #ffffff; /* White for contrast */
+    -fx-font-weight: 700;
 }
 
 .text-field {
     -fx-background-color: #ffffff;
     -fx-border-color: #d1d5db;
-    -fx-border-radius: 5;
-    -fx-padding: 10;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 5, 0, 0, 0);
+}
+
+.text-field:focused {
+    -fx-border-color: #a656e8;
+    -fx-border-width: 2;
 }
 
 .button {
-    -fx-background-color: #a95de8;
+    -fx-background-color: #a656e8; /* Purple button */
     -fx-text-fill: #ffffff;
-    -fx-padding: 8 16;
-    -fx-border-radius: 5;
+    -fx-padding: 10 20;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 14px;
     -fx-cursor: hand;
+    -fx-transition: -fx-background-color 0.2s ease;
 }
 
 .button:hover {
-    -fx-background-color: #946bdc;
+    -fx-background-color: #9346d3; /* Darker purple on hover */
 }
 
 .error-label {
     -fx-text-fill: #dc2626;
+    -fx-font-size: 13px;
 }
 
 .chat-list {
     -fx-background-color: #ffffff;
-    -fx-border-color: #e0e0e0;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 5;
+}
+
+.chat-list .list-cell {
+    -fx-padding: 10;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+}
+
+.chat-list .list-cell:selected {
+    -fx-background-color: #ede9fe; /* Light purple selection */
+    -fx-text-fill: #1f2937;
 }
 
 .chat-title {
-    -fx-font-size: 18px;
-    -fx-text-fill: #b876ef;
-    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-text-fill: #a656e8;
+    -fx-font-weight: 700;
 }
 
 .message-field {
     -fx-background-color: #ffffff;
     -fx-border-color: #d1d5db;
-    -fx-border-radius: 5;
-    -fx-padding: 10;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-padding: 12;
+    -fx-font-size: 14px;
+    -fx-text-fill: #1f2937;
+    -fx-prompt-text-fill: #9ca3af;
 }
 
 .message-container {
-    -fx-spacing: 10;
+    -fx-spacing: 8;
     -fx-padding: 10;
 }
 
 .message-bubble {
-    -fx-background-color: #e9d5ff;
-    -fx-padding: 10;
-    -fx-border-radius: 10;
-    -fx-max-width: 400;
+    -fx-background-color: linear-gradient(to bottom, #c4b0e0, #b39ddb); /* Darkened purple gradient for better contrast with white text */
+    -fx-padding: 12 20;
+    -fx-border-radius: 15 15 15 5; /* Reduced bottom-left radius to mimic tail */
+    -fx-background-radius: 15 15 15 5;
+    -fx-max-width: 600;
+    -fx-pref-width: -1;
+    -fx-text-fill: #ffffff; /* White text for better visibility */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 1, 1);
+    -fx-wrap-text: true;
+    -fx-spacing: 8;
 }
 
 .message-bubble-sent {
-    -fx-background-color: #9f4ae4;
-    -fx-text-fill: #ffffff;
+    -fx-background-color: linear-gradient(to bottom, #9f4ae4, #8c3ed1); /* Darker purple gradient, already good for white text */
+    -fx-text-fill: #ffffff; /* White text, already set */
+    -fx-max-width: 600;
+    -fx-pref-width: -1;
+    -fx-border-radius: 15 15 5 15; /* Reduced bottom-right radius to mimic tail */
+    -fx-background-radius: 15 15 5 15;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 1, 1);
+    -fx-wrap-text: true;
+    -fx-spacing: 8;
 }
 
 .message-deleted {
     -fx-font-style: italic;
-    -fx-text-fill: #666666;
+    -fx-text-fill: #d1d5db; /* Light gray for deleted messages, better contrast */
+    -fx-font-size: 13px;
 }
 
 .message-meta {
-    -fx-font-size: 12px;
-    -fx-text-fill: #666666;
+    -fx-font-size: 12px; /* Increased for better readability */
+    -fx-text-fill: #e5e7eb; /* Light gray for better contrast */
+    -fx-padding: 0 5 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 1, 1); /* Subtle shadow for visibility */
 }
 
 .message-status {
-    -fx-font-size: 12px;
-    -fx-text-fill: #666666;
+    -fx-font-size: 12px; /* Increased for better readability */
+    -fx-text-fill: #e5e7eb; /* Light gray for better contrast */
+    -fx-padding: 0 0 0 3;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 2, 0, 1, 1); /* Subtle shadow for visibility */
 }
 
 .username-label {
     -fx-text-fill: #ffffff;
     -fx-font-size: 16px;
+    -fx-font-weight: 600;
 }
 
 .member-list {
     -fx-background-color: #ffffff;
-    -fx-border-color: #e0e0e0;
+    -fx-border-color: #e5e7eb;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-padding: 5;
+}
+
+.member-list .list-cell {
+    -fx-padding: 8;
+    -fx-font-size: 14px;
 }

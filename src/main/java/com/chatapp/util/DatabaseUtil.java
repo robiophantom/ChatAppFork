@@ -10,10 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DatabaseUtil {
-    private static final String URL = "jdbc:mysql://2409:4085:aecd:79aa:a876:130b:4500:584c/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-    private static final String USER = "remote_user";
-    private static final String PASSWORD = "StrongPassword123";
-
+    private static final String URL = "jdbc:mysql://localhost:3306/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+    private static final String USER = "root";
+    private static final String PASSWORD = "rawal117";
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
@@ -223,7 +222,7 @@ public class DatabaseUtil {
     // Get group message status for tick display
     public static String getGroupMessageStatus(int messageId, int senderId, int groupId) throws SQLException {
         String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN delivered_at IS NOT NULL THEN 1 ELSE 0 END) as delivered, " +
-                "SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as read " +
+                "SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as `read` " +
                 "FROM message_status ms JOIN group_members gm ON ms.user_id = gm.user_id " +
                 "WHERE ms.message_id = ? AND gm.group_id = ? AND ms.user_id != ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {

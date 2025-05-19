@@ -71,12 +71,12 @@ cd ChatApp
 Configure MySQL:
 
 Install MySQL Server and ensure it’s running.
-Create a database named chatapp:CREATE DATABASE chatapp;
-
-
-Run the following SQL script to set up the schema (available in the project documentation or below):USE chatapp;
+-- Create the database
+CREATE DATABASE chatapp;
+USE chatapp;
 
 -- Drop tables in reverse order to avoid foreign key issues
+DROP TABLE IF EXISTS message_status;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS group_members;
 DROP TABLE IF EXISTS contacts;
@@ -85,59 +85,71 @@ DROP TABLE IF EXISTS users;
 
 -- Create users table
 CREATE TABLE users (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(50) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    profile_picture LONGBLOB,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+id INT AUTO_INCREMENT PRIMARY KEY,
+username VARCHAR(50) UNIQUE NOT NULL,
+password VARCHAR(255) NOT NULL,
+profile_picture LONGBLOB,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
 -- Create chat_groups table
 CREATE TABLE chat_groups (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL,
-    created_by INT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (created_by) REFERENCES users(id)
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(100) NOT NULL,
+created_by INT,
+created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+FOREIGN KEY (created_by) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 -- Create group_members table
 CREATE TABLE group_members (
-    group_id INT,
-    user_id INT,
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (group_id, user_id),
-    FOREIGN KEY (group_id) REFERENCES chat_groups(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+group_id INT,
+user_id INT,
+joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (group_id, user_id),
+FOREIGN KEY (group_id) REFERENCES chat_groups(id),
+FOREIGN KEY (user_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 -- Create contacts table
 CREATE TABLE contacts (
-    user_id INT,
-    contact_id INT,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (user_id, contact_id),
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (contact_id) REFERENCES users(id)
+user_id INT,
+contact_id INT,
+added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (user_id, contact_id),
+FOREIGN KEY (user_id) REFERENCES users(id),
+FOREIGN KEY (contact_id) REFERENCES users(id)
 ) ENGINE=InnoDB;
 
 -- Create messages table
 CREATE TABLE messages (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    sender_id INT,
-    recipient_id INT,
-    group_id INT,
-    content TEXT,
-    file_name VARCHAR(255),
-    file_data LONGBLOB,
-    file_size BIGINT,
-    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (sender_id) REFERENCES users(id),
-    FOREIGN KEY (recipient_id) REFERENCES users(id),
-    FOREIGN KEY (group_id) REFERENCES chat_groups(id)
+id INT AUTO_INCREMENT PRIMARY KEY,
+sender_id INT,
+recipient_id INT,
+group_id INT,
+content TEXT,
+file_name VARCHAR(255),
+file_data LONGBLOB,
+file_size BIGINT,
+sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+is_deleted BOOLEAN DEFAULT FALSE,
+delivered_at TIMESTAMP,
+read_at TIMESTAMP,
+FOREIGN KEY (sender_id) REFERENCES users(id),
+FOREIGN KEY (recipient_id) REFERENCES users(id),
+FOREIGN KEY (group_id) REFERENCES chat_groups(id)
 ) ENGINE=InnoDB;
 
-
+-- Create message_status table for group message tracking
+CREATE TABLE message_status (
+message_id INT,
+user_id INT,
+delivered_at TIMESTAMP,
+read_at TIMESTAMP,
+PRIMARY KEY (message_id, user_id),
+FOREIGN KEY (message_id) REFERENCES messages(id),
+FOREIGN KEY (user_id) REFERENCES users(id)
+) ENGINE=InnoDB;
 
 
 Update Database Credentials:
