@@ -12,13 +12,13 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(App.class.getResource("/fxml/login.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 800, 600);
-        scene.getStylesheets().add(getClass().getResource("/css/light.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/dark.css").toExternalForm());
         stage.setTitle("ChatApp - Login");
         stage.setScene(scene);
         stage.show();
     }
 
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }

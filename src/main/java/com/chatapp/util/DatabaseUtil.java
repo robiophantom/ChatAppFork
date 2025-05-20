@@ -17,7 +17,15 @@ public class DatabaseUtil {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
-
+    public static boolean registerUser(String username, String password, byte[] profilePicture) throws SQLException {
+        String sql = "INSERT INTO users (username, password, profile_picture) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, BCrypt.hashpw(password, BCrypt.gensalt()));
+            stmt.setBytes(3, profilePicture);
+            return stmt.executeUpdate() > 0;
+        }
+    }
     public static User authenticateUser(String username, String password) throws SQLException {
         String sql = "SELECT id, username, password, profile_picture FROM users WHERE username = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -30,15 +38,7 @@ public class DatabaseUtil {
         }
     }
 
-    public static boolean registerUser(String username, String password, byte[] profilePicture) throws SQLException {
-        String sql = "INSERT INTO users (username, password, profile_picture) VALUES (?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, username);
-            stmt.setString(2, BCrypt.hashpw(password, BCrypt.gensalt()));
-            stmt.setBytes(3, profilePicture);
-            return stmt.executeUpdate() > 0;
-        }
-    }
+
 
     public static List<User> searchUsers(String query, int currentUserId) throws SQLException {
         List<User> users = new ArrayList<>();
