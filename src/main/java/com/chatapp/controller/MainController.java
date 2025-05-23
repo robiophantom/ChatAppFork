@@ -201,7 +201,7 @@ public class MainController {
                             msg.getStatus();
                     status.setText(statusText);
                     status.getStyleClass().add("message-status");
-                    if (statusText.equals("✓✓ (blue)")) {
+                    if (statusText.equals("✓✓(blue)")) {
                         status.setStyle("-fx-text-fill: #4fc3f7;"); // Blue for read
                     }
                 }
