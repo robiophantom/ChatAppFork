@@ -166,6 +166,13 @@ public class MainController {
                 }
                 VBox.setVgrow(messageBubble, Priority.ALWAYS);
 
+                // Add sender name for group messages from others
+                if (selectedGroup != null && msg.getSenderId() != currentUser.getId()) {
+                    Label senderLabel = new Label(msg.getSenderName());
+                    senderLabel.getStyleClass().add("chat-title");
+                    messageBubble.getChildren().add(senderLabel);
+                }
+
                 // Message content
                 Label content = new Label();
                 if (msg.isDeleted()) {

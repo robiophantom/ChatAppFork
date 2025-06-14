@@ -17,6 +17,7 @@ public class DatabaseUtil {
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
+
     public static boolean registerUser(String username, String password, byte[] profilePicture) throws SQLException {
         String sql = "INSERT INTO users (username, password, profile_picture) VALUES (?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -26,6 +27,7 @@ public class DatabaseUtil {
             return stmt.executeUpdate() > 0;
         }
     }
+
     public static User authenticateUser(String username, String password) throws SQLException {
         String sql = "SELECT id, username, password, profile_picture FROM users WHERE username = ?";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -37,8 +39,6 @@ public class DatabaseUtil {
             return null;
         }
     }
-
-
 
     public static List<User> searchUsers(String query, int currentUserId) throws SQLException {
         List<User> users = new ArrayList<>();
@@ -88,7 +88,7 @@ public class DatabaseUtil {
     public static List<Message> getMessages(int userId, Integer recipientId, Integer groupId) throws SQLException {
         List<Message> messages = new ArrayList<>();
         String sql = groupId != null ?
-                "SELECT m.* FROM messages m WHERE m.group_id = ? ORDER BY m.sent_at" :
+                "SELECT m.*, u.username AS sender_name FROM messages m JOIN users u ON m.sender_id = u.id WHERE m.group_id = ? ORDER BY m.sent_at" :
                 "SELECT m.* FROM messages m WHERE (m.sender_id = ? AND m.recipient_id = ?) OR (m.sender_id = ? AND m.recipient_id = ?) ORDER BY m.sent_at";
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             if (groupId != null) {
@@ -113,13 +113,13 @@ public class DatabaseUtil {
                         rs.getString("sent_at"),
                         rs.getBoolean("is_deleted"),
                         rs.getString("delivered_at"),
-                        rs.getString("read_at")
+                        rs.getString("read_at"),
+                        groupId != null ? rs.getString("sender_name") : null
                 );
                 messages.add(msg);
             }
         }
 
-        // Update delivery and read status
         if (groupId != null) {
             updateGroupMessageStatus(messages, userId, groupId);
         } else if (recipientId != null && userId != recipientId) {
@@ -219,7 +219,6 @@ public class DatabaseUtil {
         }
     }
 
-    // Get group message status for tick display
     public static String getGroupMessageStatus(int messageId, int senderId, int groupId) throws SQLException {
         String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN delivered_at IS NOT NULL THEN 1 ELSE 0 END) as delivered, " +
                 "SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as `read` " +

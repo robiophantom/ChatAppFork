@@ -13,6 +13,7 @@ public class Message {
     private boolean isDeleted;
     private String deliveredAt;
     private String readAt;
+    private String senderName; // 🆕
 
     public Message(int id, int senderId, int recipientId, Integer groupId, String content,
                    String fileName, byte[] fileData, long fileSize, String sentAt) {
@@ -31,7 +32,7 @@ public class Message {
     // Constructor for database retrieval
     public Message(int id, int senderId, int recipientId, Integer groupId, String content,
                    String fileName, byte[] fileData, long fileSize, String sentAt,
-                   boolean isDeleted, String deliveredAt, String readAt) {
+                   boolean isDeleted, String deliveredAt, String readAt, String senderName) {
         this.id = id;
         this.senderId = senderId;
         this.recipientId = recipientId;
@@ -44,6 +45,7 @@ public class Message {
         this.isDeleted = isDeleted;
         this.deliveredAt = deliveredAt;
         this.readAt = readAt;
+        this.senderName = senderName; // 🆕
     }
 
     // Getters
@@ -59,6 +61,7 @@ public class Message {
     public boolean isDeleted() { return isDeleted; }
     public String getDeliveredAt() { return deliveredAt; }
     public String getReadAt() { return readAt; }
+    public String getSenderName() { return senderName; } // 🆕
 
     // Determine message status
     public String getStatus() {
