@@ -10,7 +10,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -40,7 +39,7 @@ public class MainController {
     private User selectedUser;
     private Group selectedGroup;
     private boolean isDarkMode = false;
-    private boolean shouldScrollToBottom = true; // Flag to control scrolling behavior
+    private boolean shouldScrollToBottom = true;
 
     public void setUser(User user) {
         this.currentUser = user;
@@ -81,7 +80,7 @@ public class MainController {
                                 .orElse(null);
                     }
                     chatTitle.setText(newVal);
-                    shouldScrollToBottom = true; // Scroll to bottom when a new chat is selected
+                    shouldScrollToBottom = true;
                     loadMessages();
                 }
             });
@@ -110,7 +109,7 @@ public class MainController {
                             .findFirst()
                             .orElse(null);
                     chatTitle.setText(newVal);
-                    shouldScrollToBottom = true; // Scroll to bottom when a new chat is selected
+                    shouldScrollToBottom = true;
                     loadMessages();
                     addContactButton.setVisible(true);
                 } else {
@@ -141,9 +140,8 @@ public class MainController {
 
     private void loadMessages() {
         try {
-            // Capture the current scroll position before reloading messages
             double currentScrollPos = messageScrollPane.getVvalue();
-            boolean wasAtBottom = currentScrollPos >= 0.99; // Consider "at bottom" if very close to 1.0
+            boolean wasAtBottom = currentScrollPos >= 0.99;
 
             messageContainer.getChildren().clear();
             List<Message> messages = DatabaseUtil.getMessages(
@@ -152,13 +150,11 @@ public class MainController {
                     selectedGroup != null ? selectedGroup.getId() : null
             );
             for (Message msg : messages) {
-                // Outer HBox to align the entire message bubble (left for sender, right for user)
                 HBox messageWrapper = new HBox();
                 messageWrapper.setAlignment(msg.getSenderId() == currentUser.getId() ?
                         javafx.geometry.Pos.CENTER_RIGHT : javafx.geometry.Pos.CENTER_LEFT);
                 HBox.setHgrow(messageWrapper, Priority.ALWAYS);
 
-                // VBox for the bubble itself, containing both message content and metadata
                 VBox messageBubble = new VBox();
                 messageBubble.getStyleClass().add("message-bubble");
                 if (msg.getSenderId() == currentUser.getId()) {
@@ -166,14 +162,12 @@ public class MainController {
                 }
                 VBox.setVgrow(messageBubble, Priority.ALWAYS);
 
-                // Add sender name for group messages from others
                 if (selectedGroup != null && msg.getSenderId() != currentUser.getId()) {
                     Label senderLabel = new Label(msg.getSenderName());
                     senderLabel.getStyleClass().add("chat-title");
                     messageBubble.getChildren().add(senderLabel);
                 }
 
-                // Message content
                 Label content = new Label();
                 if (msg.isDeleted()) {
                     content.setText("This message was deleted");
@@ -195,7 +189,6 @@ public class MainController {
                 content.setMaxWidth(Double.MAX_VALUE);
                 HBox.setHgrow(content, Priority.ALWAYS);
 
-                // HBox for metadata (timestamp and status)
                 HBox metaBox = new HBox(5);
                 metaBox.setAlignment(javafx.geometry.Pos.BOTTOM_RIGHT);
                 HBox.setHgrow(metaBox, Priority.ALWAYS);
@@ -208,17 +201,21 @@ public class MainController {
                             msg.getStatus();
                     status.setText(statusText);
                     status.getStyleClass().add("message-status");
-                    if (statusText.equals("✓✓(blue)")) {
-                        status.setStyle("-fx-text-fill: #4fc3f7;"); // Blue for read
+                    if (selectedGroup != null) {
+                        if (statusText.equals("✓✓") && isGroupMessageRead(msg.getId(), selectedGroup.getId())) {
+                            status.setStyle("-fx-text-fill: #4fc3f7;");
+                        }
+                    } else {
+                        if (statusText.equals("✓✓") && msg.getReadAt() != null) {
+                            status.setStyle("-fx-text-fill: #4fc3f7;");
+                        }
                     }
                 }
                 metaBox.getChildren().addAll(timestamp, status);
 
-                // Add content and metadata to the bubble
                 messageBubble.getChildren().addAll(content, metaBox);
                 messageWrapper.getChildren().add(messageBubble);
 
-                // Add context menu for sender's messages
                 if (msg.getSenderId() == currentUser.getId() && !msg.isDeleted()) {
                     ContextMenu contextMenu = new ContextMenu();
                     MenuItem deleteItem = new MenuItem("Delete Message");
@@ -247,19 +244,35 @@ public class MainController {
                 messageContainer.getChildren().add(messageWrapper);
             }
 
-            // Apply CSS and layout
             messageScrollPane.applyCss();
             messageScrollPane.layout();
 
-            // Scroll logic
             if (shouldScrollToBottom || wasAtBottom) {
-                messageScrollPane.setVvalue(1.0); // Scroll to bottom
-                shouldScrollToBottom = false; // Reset flag after scrolling
+                messageScrollPane.setVvalue(1.0);
+                shouldScrollToBottom = false;
             } else {
-                messageScrollPane.setVvalue(currentScrollPos); // Preserve scroll position
+                messageScrollPane.setVvalue(currentScrollPos);
             }
         } catch (SQLException e) {
             showAlert("Error loading messages: " + e.getMessage());
+        }
+    }
+
+    private boolean isGroupMessageRead(int messageId, int groupId) throws SQLException {
+        String sql = "SELECT COUNT(*) as total, SUM(CASE WHEN read_at IS NOT NULL THEN 1 ELSE 0 END) as `read` " +
+                "FROM message_status ms JOIN group_members gm ON ms.user_id = gm.user_id " +
+                "WHERE ms.message_id = ? AND gm.group_id = ? AND ms.user_id != ?";
+        try (var conn = DatabaseUtil.getConnection(); var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, messageId);
+            stmt.setInt(2, groupId);
+            stmt.setInt(3, currentUser.getId());
+            var rs = stmt.executeQuery();
+            if (rs.next()) {
+                int total = rs.getInt("total");
+                int read = rs.getInt("read");
+                return total > 0 && read == total;
+            }
+            return false;
         }
     }
 
@@ -278,7 +291,7 @@ public class MainController {
                         0
                 );
                 messageField.clear();
-                shouldScrollToBottom = true; // Scroll to bottom after sending a message
+                shouldScrollToBottom = true;
                 loadMessages();
             }
         } catch (SQLException e) {
@@ -301,7 +314,7 @@ public class MainController {
                         fileData,
                         file.length()
                 );
-                shouldScrollToBottom = true; // Scroll to bottom after attaching a file
+                shouldScrollToBottom = true;
                 loadMessages();
             } catch (IOException | SQLException e) {
                 showAlert("Error attaching file: " + e.getMessage());
@@ -366,7 +379,6 @@ public class MainController {
     }
 
     private String formatTimestamp(String sentAt) {
-        // Assuming sentAt is in format "yyyy-MM-dd HH:mm:ss"
         try {
             String[] parts = sentAt.split(" ")[1].split(":");
             int hour = Integer.parseInt(parts[0]);
@@ -375,7 +387,7 @@ public class MainController {
             hour = hour % 12 == 0 ? 12 : hour % 12;
             return String.format("%d:%s %s", hour, minute, period);
         } catch (Exception e) {
-            return sentAt; // Fallback
+            return sentAt;
         }
     }
 }

@@ -233,7 +233,7 @@ public class DatabaseUtil {
                 int total = rs.getInt("total");
                 int delivered = rs.getInt("delivered");
                 int read = rs.getInt("read");
-                if (total > 0 && read == total) return "✓✓(blue) "; // All read
+                if (total > 0 && read == total) return "✓✓"; // All read
                 if (total > 0 && delivered == total) return "✓✓"; // All delivered
                 return "✓"; // Sent
             }
