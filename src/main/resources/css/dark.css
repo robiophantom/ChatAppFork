@@ -44,6 +44,11 @@
     -fx-font-weight: 700;
 }
 
+.button:hover {
+    -fx-background-color: #2563eb;
+}
+
+
 .text-field {
     -fx-background-color: #374151;
     -fx-text-fill: #e5e7eb;
