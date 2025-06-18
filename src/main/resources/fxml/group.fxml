@@ -5,10 +5,10 @@
 
 <VBox alignment="CENTER" spacing="20" styleClass="login-container" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.chatapp.controller.GroupController">
     <Label styleClass="title" text="Create Group" />
-    <TextField fx:id="groupNameField" promptText="Group Name" styleClass="text-field" />
-    <TextField fx:id="usernameField" promptText="Add User (Username)" styleClass="text-field" />
-    <Button fx:id="addMemberButton" onAction="#handleAddMember" styleClass="button" text="Add Member" />
-    <ListView fx:id="memberList" prefHeight="335.0" prefWidth="248.0" styleClass="member-list" />
+    <TextField fx:id="groupNameField" prefHeight="31.0" prefWidth="248.0" promptText="Group Name" styleClass="text-field" />
+    <TextField fx:id="usernameField" prefHeight="30.0" prefWidth="248.0" promptText="Add User (Username)" styleClass="text-field" />
+    <Button fx:id="addMemberButton" onAction="#handleAddMember" prefHeight="32.0" prefWidth="87.0" styleClass="button" text="Add Member" />
+    <ListView fx:id="memberList" prefHeight="385.0" prefWidth="248.0" styleClass="member-list" />
     <Button fx:id="createButton" onAction="#handleCreate" styleClass="button" text="Create Group" />
     <Label fx:id="errorLabel" styleClass="error-label" />
 </VBox>

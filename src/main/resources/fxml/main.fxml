@@ -28,7 +28,7 @@
                 <VBox fx:id="messageContainer" styleClass="message-container" />
             </ScrollPane>
             <HBox spacing="10">
-                <TextArea fx:id="messageField" prefHeight="181.0" prefWidth="465.0" promptText="Type a message..." styleClass="message-field" />
+                <TextArea fx:id="messageField" prefHeight="0.0" prefWidth="465.0" promptText="Type a message..." styleClass="message-field" />
                 <Button fx:id="sendButton" onAction="#handleSend" styleClass="button" text="Send" />
                 <Button fx:id="attachButton" onAction="#handleAttach" styleClass="button" text="Attach" />
             </HBox>
