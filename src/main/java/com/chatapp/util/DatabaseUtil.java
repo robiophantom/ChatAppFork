@@ -1,43 +1,34 @@
 package com.chatapp.util;
-
-// let's bring in the models we need for users, groups, and messages, plus a library for password hashing
 import com.chatapp.model.Group;
 import com.chatapp.model.Message;
 import com.chatapp.model.User;
 import org.mindrot.jbcrypt.BCrypt;
-
-// we also need SQL tools to talk to our database and some handy Java utilities
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// this is our DatabaseUtil class, the go-to place for all database operations in our ChatApp
 public class DatabaseUtil {
-    // database connection details are stored here; we're using MySQL on localhost with the chatapp database
     private static final String URL = "jdbc:mysql://localhost:3306/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-    // the database username, set to 'root' for now (for deplyment we can save it in environment variables or config.properties)
     private static final String USER = "root";
     private static final String PASSWORD = "rawal117";
 
-    // this method gets us a connection to the database; it's like opening a phone line to MySQL
+    // this method gets us a connection to the database
     public static Connection getConnection() throws SQLException {
-        // driverManager dials up the database using our URL, user, and password; throws an error if it fails
         return DriverManager.getConnection(URL, USER, PASSWORD);
     }
 
     // this method signs up a new user by saving their details in the database
     public static boolean registerUser(String username, String password, byte[] profilePicture) throws SQLException {
-        // here's the SQL query to insert a new user into the 'users' table with their username, hashed password, and profile picture
         String sql = "INSERT INTO users (username, password, profile_picture) VALUES (?, ?, ?)";
         // we use try-with-resources to ensure the connection and statement close automatically, keeping things tidy
         try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            // set the username in the first placeholder (?) of the query
+            // set the username in the first placeholder (?)
             stmt.setString(1, username);
-            // hash the password with BCrypt for security (no plain text passwords here!) and set it in the second placeholder
+            // hash the password with BCrypt for security and set it in the second placeholder
             stmt.setString(2, BCrypt.hashpw(password, BCrypt.gensalt()));
-            // add the profile picture (as a byte array) to the third placeholder; can be null if no picture is provided
+            // add the profile picture (as a byte array) to the third placeholder; it can be null if no picture is provided
             stmt.setBytes(3, profilePicture);
-            // execute the query and check if at least one row was added; return true if successful, false otherwise
+            // execute the query and check if at least one row was added; return true if successful otherwise false
             return stmt.executeUpdate() > 0;
         }
     }

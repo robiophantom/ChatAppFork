@@ -44,7 +44,7 @@ public class RegisterController {
         Stage stage = (Stage) usernameField.getScene().getWindow();
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
         Scene scene = new Scene(loader.load());
-        scene.getStylesheets().add(getClass().getResource("/css/light.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/dark.css").toExternalForm());
         stage.setScene(scene);
         stage.setTitle("ChatApp - Login");
     }

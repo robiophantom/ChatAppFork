@@ -1,15 +1,9 @@
 package com.chatapp.util;
-
-// let's bring in JavaFX tools for handling images and file selection dialogs
 import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-// we need these for working with images in a format JavaFX understands
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-
-// these are for file input/output operations and handling byte arrays
 import java.io.*;
 
 // this is our FileUtil class, a handy toolbox for working with files and images in our ChatApp
