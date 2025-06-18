@@ -10,7 +10,7 @@ import java.util.List;
 public class DatabaseUtil {
     private static final String URL = "jdbc:mysql://localhost:3306/chatapp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
     private static final String USER = "root";
-    private static final String PASSWORD = "rawal117";
+    private static final String PASSWORD = "qwerasdf";
 
     // this method gets us a connection to the database
     public static Connection getConnection() throws SQLException {

@@ -3,6 +3,7 @@ package com.chatapp;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 //we need this to handle potential file loading errors
 import java.io.IOException;
@@ -19,7 +20,7 @@ public class App extends Application {
         scene.getStylesheets().add(getClass().getResource("/css/dark.css").toExternalForm());
         //set the window title to "ChatApp - Login"
         stage.setTitle("ChatApp - Login");
-        //attach the scene to the main window
+        stage.getIcons().add(new Image("/images/rabit.jpg"));        //attach the scene to the main window
         stage.setScene(scene);
         stage.show();
     }
